@@ -161,8 +161,22 @@ const Router: React.FC<RouterProps> = ({
 
         if (name && path) {
           namedRoutes[name] = (args = {}) => {
-            const { params } = matchPath(path, location.pathname, paramTypes)
-            return replaceParams(path, { ...params, ...args })
+            const { match, params: pathParams } = matchPath(
+              path,
+              location.pathname,
+              paramTypes
+            )
+
+            if (!match) {
+              return replaceParams(path, args)
+            }
+
+            const searchParams = parseSearch(location.search)
+            return replaceParams(path, {
+              ...pathParams,
+              ...searchParams,
+              ...args,
+            })
           }
         }
       }
