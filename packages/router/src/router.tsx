@@ -140,6 +140,7 @@ const Router: React.FC<RouterProps> = ({
   pageLoadingDelay,
   children,
 }) => {
+  const location = window.location
   const flatChildArray = flattenAll(children)
   const shouldShowSplash =
     flatChildArray.length === 1 &&
@@ -159,7 +160,10 @@ const Router: React.FC<RouterProps> = ({
         validatePath(path)
 
         if (name && path) {
-          namedRoutes[name] = (args = {}) => replaceParams(path, args)
+          namedRoutes[name] = (args = {}) => {
+            const { params } = matchPath(path, location.pathname, paramTypes)
+            return replaceParams(path, { ...params, ...args })
+          }
         }
       }
     }
@@ -171,7 +175,7 @@ const Router: React.FC<RouterProps> = ({
       paramTypes={paramTypes}
       pageLoadingDelay={pageLoadingDelay}
     >
-      <LocationProvider>
+      <LocationProvider location={location}>
         <ParamsProvider>
           <RouteScanner>{children}</RouteScanner>
         </ParamsProvider>
